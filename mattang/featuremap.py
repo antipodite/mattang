@@ -1,3 +1,5 @@
+import random
+
 import numpy
 from pandas import DataFrame
 
@@ -15,6 +17,7 @@ from cartopy.feature import ShapelyFeature
 from scipy.spatial import ConvexHull
 
 from collections import namedtuple
+
 
 #### Geometry helpers
 
@@ -79,14 +82,11 @@ class FeatureMap:
     """Map linguistic data using the "Historical Glottometry" style of
     visualisation (François & Kalyan 2018).
     """
-    def __init__(self, dataframe: DataFrame):
+    def __init__(self):
 
         self.projection = None
         self.shapefile = None
         self.extent = None
-        
-        self.load_data(dataframe)
-
         self.discrete_markers = []
         self.continuous_markers = []
         self.colourbars = []
@@ -231,15 +231,25 @@ class FeatureMap:
         for feature in features:
             self._draw_isogloss(feature, colour, style, padding)
         return
+
     
-    def draw(self, features=[], colours=[], isoglosses=[]):
+    def draw(self, filename, features=[], colours=[], isoglosses=[]):
+        
         # Clear the map
         self.init_map(self.shapefile, self.extent, self.projection)
         
         # Check user input
+        if not features:
+            raise ValueError("Must specify at least one feature to plot!")
+        
         for f in features:
             if f not in self.dataframe.columns:
                 raise ValueError("{} is not a valid feature".format(f))
+
+        if not colours:
+            # Use randomly selected colourmaps
+            allcolours = plt.colormaps()
+            colours = [random.choice(allcolours) for f in features]
 
         if len(features) != len(colours):
             raise ValueError("Feature and colour list lengths must match")
@@ -250,5 +260,4 @@ class FeatureMap:
         #self._draw_legend()
         self._draw_colourbars(features, colours)
         self.fig.tight_layout()
-        self.fig.show()
-            
+        plt.savefig(filename)
