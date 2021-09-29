@@ -17,30 +17,36 @@ the coordinates of the languages in the data
 """
 import argparse
 
-from pathlib import Path
+from os.path import exists
 from pandas import read_csv
 
-from featuremap import FeatureMap
+from featuremap import FeatureMap, MattangError
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--shapefile", help="a shapefile to draw the map on")
-parser.add_argument("--features", help="spreadsheet columns to be mapped")
-parser.add_argument("--colours", help="colours to use for mapping features")
-parser.add_argument("--isoglosses", help="features to draw isoglosses around")
-
-# Dummy, the datafile will always be /langdata in the container
-parser.add_argument("datafile", help="a spreadsheet containing data to be mapped")
+parser.add_argument("filename", nargs="?")
+parser.add_argument("-f") # Features
+parser.add_argument("-c")
+parser.add_argument("-i")
 
 args = parser.parse_args()
+features = args.f.split(",") if args.f else None
+colours = args.c.split(",") if args.c else None
+isoglosses = args.i.split(",") if args.i else None
 
-df = read_csv("/langdata", sep="\t")
+print(args)
+
+df = read_csv("/in", sep="\t")
 fm = FeatureMap()
 
+if exists("/shape"):
+    fm.init_map(shapefile="/shape")
 
+    
 fm.load_data(df)
 fm.draw(
-    "/crips.png",
-    features=args.features.split(","),
+    "/out/" + args.filename,
+    features=features,
+    colours=colours,
+    isoglosses=isoglosses,
 )
-#except ValueError as e:
- #   print("Error: " + str(e))
+

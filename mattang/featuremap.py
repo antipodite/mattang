@@ -19,6 +19,10 @@ from scipy.spatial import ConvexHull
 from collections import namedtuple
 
 
+class MattangError(Exception):
+    pass
+
+
 #### Geometry helpers
 
 def midpoint(point_a, point_b, offset=(0, 0)):
@@ -233,18 +237,18 @@ class FeatureMap:
         return
 
     
-    def draw(self, filename, features=[], colours=[], isoglosses=[]):
+    def draw(self, filename, features, colours=[], isoglosses=[]):
         
         # Clear the map
         self.init_map(self.shapefile, self.extent, self.projection)
         
         # Check user input
         if not features:
-            raise ValueError("Must specify at least one feature to plot!")
+            raise MattangError("Must specify at least one feature to plot!")
         
         for f in features:
             if f not in self.dataframe.columns:
-                raise ValueError("{} is not a valid feature".format(f))
+                raise MattangError("{} is not a valid feature".format(f))
 
         if not colours:
             # Use randomly selected colourmaps
@@ -252,11 +256,12 @@ class FeatureMap:
             colours = [random.choice(allcolours) for f in features]
 
         if len(features) != len(colours):
-            raise ValueError("Feature and colour list lengths must match")
-
+            raise MattangError("Feature and colour list lengths must match")
+ 
         # Build and show the map
         self._draw_pie_markers(features, colours)
-        self._draw_isoglosses(isoglosses)
+        if isoglosses:
+            self._draw_isoglosses(isoglosses)
         #self._draw_legend()
         self._draw_colourbars(features, colours)
         self.fig.tight_layout()

@@ -1,13 +1,13 @@
 # syntax=docker/dockerfile:1
 
-FROM fedora:latest
+FROM debian:bullseye
 
 WORKDIR /mattang
 
 COPY requirements.txt requirements.txt
 
-RUN dnf install -y python-pip python-cartopy
+RUN apt update
+RUN apt install -y python3-pip python3-cartopy
 RUN pip install -r requirements.txt
-RUN touch /langdata
 
 COPY . .
