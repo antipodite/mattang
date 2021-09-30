@@ -16,7 +16,9 @@ the coordinates of the languages in the data
 - Attempt to guess the separator of a CSV and support MS Excel files and similar
 """
 import argparse
+import os
 
+from cartopy.io.shapereader import Reader
 from os.path import exists
 from pandas import read_csv
 
@@ -27,21 +29,23 @@ parser.add_argument("filename", nargs="?")
 parser.add_argument("-f") # Features
 parser.add_argument("-c")
 parser.add_argument("-i")
+parser.add_argument("-s") # Shapefile name, folder is mounted in /shape
 
 args = parser.parse_args()
+
+print(args)
+print(os.system("ls -la /shape"))
+
 features = args.f.split(",") if args.f else None
 colours = args.c.split(",") if args.c else None
 isoglosses = args.i.split(",") if args.i else None
-
-print(args)
 
 df = read_csv("/in", sep="\t")
 fm = FeatureMap()
 
 if exists("/shape"):
-    fm.init_map(shapefile="/shape")
+    fm.init_map(shapefile="/shape/" + args.s)
 
-    
 fm.load_data(df)
 fm.draw(
     "/out/" + args.filename,
