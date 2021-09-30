@@ -29,12 +29,15 @@ mounts.append(Mount("/in", abspath(args.infile), type="bind", read_only=True))
 mounts.append(Mount("/out", dirname(abspath(args.outfile)), type="bind"))
 command.append(basename(args.outfile))
 
+# Mount optional files / folders
 if args.shapefile:
     mounts.append(Mount("/shape", dirname(abspath(args.shapefile)), type="bind"))
 
 # Add the optional arguments to the command string
 for arg, value in vars(args).items():
-    if value and arg not in ["infile", "outfile", "shapefile"]:
+    if value and arg not in ["infile", "outfile"]:
+        if arg == "shapefile":
+            value = basename(value)
         command.append("-{} {}".format(arg[0], value))
 
 client = docker.from_env()
