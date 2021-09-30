@@ -11,4 +11,8 @@ RUN apt install -y python3-pip \
                    python3-numpy \
                    python3-pandas \
                    python3-scipy
+
+
 COPY . .
+
+RUN python3 cartopy_feature_download.py --no-warn physical

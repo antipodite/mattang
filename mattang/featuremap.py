@@ -83,8 +83,7 @@ def build_isogloss(points, padding=.1, roundedness=40):
 
 
 class FeatureMap:
-    """Map linguistic data using the "Historical Glottometry" style of
-    visualisation (François & Kalyan 2018).
+    """Visualise linguistic data from a spreadsheet.
     """
     def __init__(self):
 
@@ -131,15 +130,20 @@ class FeatureMap:
         self.fig, self.axis = plt.subplots(1, 1, subplot_kw=dict(projection=projection))
 
         if shapefile:
-             self.axis.add_feature(
-                 ShapelyFeature(
-                     Reader(shapefile).geometries(), projection, facecolor="none"
-                 )
-             )
-             self.shapefile = shapefile
+            shape = ShapelyFeature(
+                Reader(shapefile).geometries(),
+                projection,
+                edgecolor="k",
+                facecolor="none",
+            )
+            self.axis.add_feature(shape)
+            self.shapefile = shapefile
+        else:
+            self.axis.coastlines(resolution='50m', color='black', linewidth=1)
         if extent:
             self.axis.set_extent(extent, projection)
             self.extent = extent
+
 
     def _draw_pie_marker(self, language, features, colours, size=250):
         """sections: (feattype, proportion)
@@ -189,7 +193,8 @@ class FeatureMap:
         for _, lang in self.dataframe.iterrows():
             self._draw_pie_marker(lang, features, colours)
         return
-    
+
+
     def _draw_colourbars(self, features, colours):
         colourmaps = [cm.get_cmap(c) for c in colours]
         divider = make_axes_locatable(self.axis)
@@ -204,6 +209,7 @@ class FeatureMap:
                 bar.set_label(feat)
                 self.colourbars.append(bar)
         return
+
 
     def _draw_legend(self):
         self.axis.legend(self.discrete_markers)

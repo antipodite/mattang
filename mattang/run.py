@@ -33,9 +33,6 @@ parser.add_argument("-s") # Shapefile name, folder is mounted in /shape
 
 args = parser.parse_args()
 
-print(args)
-print(os.system("ls -la /shape"))
-
 features = args.f.split(",") if args.f else None
 colours = args.c.split(",") if args.c else None
 isoglosses = args.i.split(",") if args.i else None
