@@ -19,6 +19,9 @@ from scipy.spatial import ConvexHull
 from collections import namedtuple
 
 
+DPI = 320
+
+
 class MattangError(Exception):
     pass
 
@@ -270,5 +273,6 @@ class FeatureMap:
             self._draw_isoglosses(isoglosses)
         #self._draw_legend()
         self._draw_colourbars(features, colours)
+        self.fig.set_dpi(DPI)
         self.fig.tight_layout()
         plt.savefig(filename)
