@@ -31,7 +31,7 @@ n, that would set the “penalty” for overlapping subgroups:
 """
 from itertools import chain
 
-from pandas import read_csv
+from pandas import read_csv, DataFrame
 from scipy.spatial.distance import pdist
 
 
@@ -41,6 +41,9 @@ def contains(s1, s2):
 
 
 def unique(seqs):
+    """Return cross-sequentially unique values from a sequence of
+    sequences.
+    """
     count = {}
     for el in chain.from_iterable(seqs):
         if el in count:
@@ -51,6 +54,11 @@ def unique(seqs):
 
 
 def grouped_unique(seqs):
+    """Find inter-sequentially unique values grouped by sequence.
+    Horribly inefficient... there must be a better algorithm for this.
+    I can see how to do it efficiently with recursion but not
+    iteratively.  Think I have some Lisp code somewhere that does it
+    """
     count = {}
     for seq in seqs:
         for el in seq:
@@ -91,12 +99,12 @@ class FeatureMatrix:
 
     @property
     def languages(self):
-        return self.lang_feats.keys()
+        return list(self.lang_feats.keys())
 
 
     @property
     def features(self):
-        return self.feat_langs.keys()
+        return list(self.feat_langs.keys())
 
 
     def exclusive(self, languages):
@@ -134,4 +142,31 @@ class FeatureMatrix:
         cohesiveness = self.cohesiveness(languages)
         exclusively_shared = len(self.exclusive(languages))
         return cohesiveness * exclusively_shared
+
+
+    def candidate_subgroups(self):
+        """Find all potential subgroups, i.e. groups of languages
+        which exclusively share at least one innovation."""
+        subgroups = []
+        for group in self.feat_langs.values():
+            if group not in subgroups:
+                subgroups.append(group)
+        return subgroups
+
+
+    def analyse(self, rounding=2):
+        """Perform the full glottometric analysis and return a summary dict.
+        """
+        subgroups = self.candidate_subgroups()
+        rows = []
+        for group in subgroups:
+            rows.append({
+                "group": ", ".join(group),
+                "exclusive": len(self.exclusive(group)),
+                "supporting": len(self.supporting(group)),
+                "conflicting": len(self.conflicting(group)),
+                "cohesion": round(self.cohesiveness(group), rounding),
+                "subgroupiness": round(self.subgroupiness(group), rounding),
+            })
+        return DataFrame(rows)
 
