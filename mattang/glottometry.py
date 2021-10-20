@@ -75,7 +75,11 @@ def grouped_unique(seqs):
                 group.append(el)
         groups.append(group)
     return groups
-        
+
+
+def flatten(seq):
+    return chain.from_iterable(seq)
+
 
 class FeatureMatrix:
 
@@ -99,12 +103,12 @@ class FeatureMatrix:
 
     @property
     def languages(self):
-        return list(self.lang_feats.keys())
+        return set(self.lang_feats.keys())
 
 
     @property
     def features(self):
-        return list(self.feat_langs.keys())
+        return set(self.feat_langs.keys())
 
 
     def exclusive(self, languages):
@@ -116,19 +120,24 @@ class FeatureMatrix:
 
     
     def supporting(self, languages):
-        shared = []
+        support = []
         for feat, langs in self.feat_langs.items():
-            if contains(languages, langs):
-                shared.append(feat)
-        return shared
+            if set(languages).issubset(set(langs)):
+                support.append(feat)
+        return support
 
 
     def conflicting(self, languages):
-        # This could be modified to specify which conflicting features are
-        # possessed by which input language using `grouped_unique`
-        feats = [fs for l, fs in self.lang_feats.items() if l in languages]
-        confl = unique(feats)
-        return confl
+        all_fs = set(flatten([fs for l, fs in self.lang_feats.items() if l in languages]))
+        diff = all_fs.symmetric_difference(self.supporting(languages))
+        result = []
+        # Check that identified innovations are shared outside this group
+        for feat in diff:
+            for lang in self.feat_langs[feat]:
+                if lang not in languages:
+                    result.append(feat)
+                    break
+        return result
 
 
     def cohesiveness(self, languages):
