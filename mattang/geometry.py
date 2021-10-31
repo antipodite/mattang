@@ -1,7 +1,7 @@
 from random import random
 
 from scipy.spatial import ConvexHull
-from numpy import cos, sin, pi
+from numpy import cos, sin, pi, cumsum, linspace, column_stack
 
 
 def chunk(seq, overlap):
@@ -52,6 +52,8 @@ def buffer_convex_hull(hull: ConvexHull, stretch: float, n: int) -> ConvexHull:
     `n` : how many vertices on the new hull to generate. This controls the
     amount of roundedness at the corners of the polygon.
     """
+    # TODO: This could be made more efficient by only generating rounding points
+    # outside the boundaries of the input hull. But doesn't really matter
     new_points = []
     for point in zip(
             hull.points[hull.vertices, 0],
@@ -80,11 +82,27 @@ def build_isogloss(points, padding=.1, roundedness=100, scale=.001):
     
     # After computing the complex hull, we expand it and round the edges
     buff_hull = buffer_convex_hull(hull, padding, roundedness)
-    isogloss = []
 
+    isogloss = []
     for simplex in buff_hull.simplices:
         point = (buff_hull.points[simplex, 0], buff_hull.points[simplex, 1])
         isogloss.append(point)
     
     return isogloss
 
+
+def pie_marker(n_slices):
+    """Calculate geometry for a pie chart style marker"""
+    cum = cumsum([2 for i in range(n_slices)])
+    cum = cum / cum[-1]
+    pie = [0] + cum.tolist()
+
+    slices = []
+    for r1, r2 in zip(pie[:-1], pie[1:]):
+        # Build the pie slice
+        angles = linspace(2 * pi * r1, 2 * pi * r2)
+        x = [0] + cos(angles).tolist()
+        y = [0] + sin(angles).tolist()
+        xy = column_stack([x, y])
+        slices.append(xy)
+    return slices

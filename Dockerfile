@@ -17,3 +17,5 @@ COPY cartopy_feature_download.py .
 RUN python3 cartopy_feature_download.py --no-warn physical
 
 COPY . .
+
+RUN python3 setup.py install --user

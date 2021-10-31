@@ -16,10 +16,10 @@ from cartopy.feature import ShapelyFeature
 
 from collections import namedtuple
 
-from geometry import midpoint, points_circumference, buffer_convex_hull, build_isogloss
+from .geometry import midpoint, points_circumference, buffer_convex_hull, build_isogloss
 
 
-DPI = 320
+DPI = 1200
 
 
 class MattangError(Exception):
@@ -167,19 +167,15 @@ class FeatureMap:
             [series.longitude for group, series in groupby],
         )
         group_points = [list(zip(lons, lats)) for lats, lons in group_xy]
-
         for points in group_points:
-            points = [p for p in points if False in numpy.isnan(p)]
-            isogloss = build_isogloss(points, padding=padding)
-            for point in isogloss:
-                self.axis.plot(
-                    point[0],
-                    point[1],
-                    "".join([colour, style]),
-                    transform=self.projection
-                )
-        return
-
+            filtered = [p for p in points if True not in numpy.isnan(p)]
+            print("points:", points, "filtered:", filtered)
+            if filtered:
+                isogloss = build_isogloss(filtered, padding=padding)
+                for point in isogloss:
+                    x, y = point
+                    self.axis.plot(x, y, "".join([colour, style]), transform=self.projection)
+                    
     
     def _draw_isoglosses(self, features, colour="k", style="-", padding=.1):
         for feature in features:
@@ -188,7 +184,6 @@ class FeatureMap:
 
     
     def draw(self, filename, features, colours=[], isoglosses=[]):
-        
         # Clear the map
         self.init_map(self.shapefile, self.extent, self.projection)
         

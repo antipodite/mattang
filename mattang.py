@@ -18,10 +18,11 @@ parser.add_argument("--features", help="spreadsheet columns to be mapped")
 parser.add_argument("--colours", help="colours to use for mapping features")
 parser.add_argument("--isoglosses", help="features to draw isoglosses around")
 parser.add_argument("--shapefile", help="shapefile to draw on map")
+# parser.add_argument("--debug", help="See what container Python process writes to stdout")
 
 args = parser.parse_args()
 
-command = ["python3 ./mattang/run.py"]
+command = ["python3 ./container_run.py"]
 mounts = []
 
 # Prepare the input files and output directory to be bind mounted into the container

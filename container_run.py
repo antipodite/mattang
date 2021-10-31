@@ -22,7 +22,7 @@ from cartopy.io.shapereader import Reader
 from os.path import exists
 from pandas import read_csv
 
-from featuremap import FeatureMap, MattangError
+from mattang.featuremap import FeatureMap, MattangError
 
 parser = argparse.ArgumentParser()
 parser.add_argument("filename", nargs="?")

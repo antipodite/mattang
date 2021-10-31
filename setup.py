@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from setuptools import setup
+from setuptools import setup, find_packages
 
-NAME = "sprachenkarte"
+NAME = "mattang"
 DESCRIPTION = "Tools for generating linguistic maps from spreadsheets using Cartopy"
 URL = "https://github.com/antipodite/sprachenkarte"
 EMAIL = "isaac_stead@eva.mpg.de"
@@ -17,10 +17,10 @@ setup(
     name=NAME,
     version=VERSION,
     author=AUTHOR,
-    email=EMAIL,
     url=URL,
     author_email=EMAIL,
     install_requires=REQUIRED,
     python_requires=REQUIRES_PYTHON,
-    py_modules=["sprachenkarte"]
+    py_modules=["mattang"],
+    packages=find_packages()
 )
